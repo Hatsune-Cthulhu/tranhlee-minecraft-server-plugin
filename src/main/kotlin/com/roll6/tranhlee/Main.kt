@@ -38,59 +38,57 @@ class Main: JavaPlugin() {
                     )
                 ).createEntityManager()
             ))
-        } catch (exception: ServiceException) {
-            this.server.shutdownMessage
-            this.server.shutdown()
-            return
-        }
 
-        ResourceManager.setResource(Authentication::class, Authentication())
-        val repositoryManager: RepositoryManager = ResourceManager.getResource(RepositoryManager::class)
+            ResourceManager.setResource(Authentication::class, Authentication())
+            val repositoryManager: RepositoryManager = ResourceManager.getResource(RepositoryManager::class)
 
-        Bukkit.getServer().pluginManager.registerEvents(
-            PlayerJoinListener(
-                repositoryManager
-                    .getRepository(PlayerRepository::class.java),
-            ),
-            this
-        )
+            Bukkit.getServer().pluginManager.registerEvents(
+                PlayerJoinListener(
+                    repositoryManager
+                        .getRepository(PlayerRepository::class.java),
+                ),
+                this
+            )
 
-        Bukkit.getServer().pluginManager.registerEvents(
-            ChatListener(
-                repositoryManager
-                    .getRepository(PlayerRepository::class.java),
-            ),
-            this
-        )
+            Bukkit.getServer().pluginManager.registerEvents(
+                ChatListener(
+                    repositoryManager
+                        .getRepository(PlayerRepository::class.java),
+                ),
+                this
+            )
 
-        this.getCommand("dadjoke")?.setExecutor(DadJoke())
-        this.getCommand("auth")?.setExecutor(Auth(repositoryManager.getRepository(PlayerRepository::class.java)))
+            this.getCommand("dadjoke")?.setExecutor(DadJoke())
+            this.getCommand("auth")?.setExecutor(Auth(repositoryManager.getRepository(PlayerRepository::class.java)))
 
-        val seconds: Int = 1800
-        this.server.scheduler.scheduleSyncRepeatingTask(
-            this, object : Runnable {
-                var lastRun: Long? = null
+            val seconds: Int = 1800
+            this.server.scheduler.scheduleSyncRepeatingTask(
+                this, object : Runnable {
+                    var lastRun: Long? = null
 
-                override fun run() {
-                    ResourceManager.getResource<Authentication>(Authentication::class).endDiscordAuthentication()
+                    override fun run() {
+                        ResourceManager.getResource<Authentication>(Authentication::class).endDiscordAuthentication()
 
-                    if (null === this.lastRun) {
-                        this.lastRun = System.currentTimeMillis()
-                        return
+                        if (null === this.lastRun) {
+                            this.lastRun = System.currentTimeMillis()
+                            return
+                        }
+
+                        val timeDiff = System.currentTimeMillis() - this.lastRun!!
+                        val log: Log = Log(
+                            20 * ((seconds * 20) / timeDiff),
+                            this@Main.server.onlinePlayers.map { it.displayName }
+                        )
+                        (repositoryManager.getRepository(LogRepository::class.java)).persist(log)
                     }
 
-                    val timeDiff = System.currentTimeMillis() - this.lastRun!!
-                    val log: Log = Log(
-                        20 * ((seconds * 20) / timeDiff),
-                        this@Main.server.onlinePlayers.map { it.displayName }
-                    )
-                    (repositoryManager.getRepository(LogRepository::class.java)).persist(log)
-                }
-
-            },
-            0,
-            (seconds.toLong()) * 20
-        )
+                },
+                0,
+                (seconds.toLong()) * 20
+            )
+        } catch (exception: ServiceException) {
+            return
+        }
     }
 
     override fun onDisable() {
