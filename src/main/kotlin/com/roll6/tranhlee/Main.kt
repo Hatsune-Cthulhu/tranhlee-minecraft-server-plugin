@@ -58,6 +58,14 @@ class Main: JavaPlugin() {
 
             this.getCommand("dadjoke")?.setExecutor(DadJoke())
             this.getCommand("auth")?.setExecutor(Auth(repositoryManager.getRepository(PlayerRepository::class.java)))
+
+            val minutes = 30L
+            this.server.scheduler.scheduleSyncRepeatingTask(
+                this,
+                { ResourceManager.getResource<Authentication>(Authentication::class).endDiscordAuthentication() },
+                0,
+                (60 * minutes) * 20
+            )
         } catch (exception: ServiceException) {
             return
         }
