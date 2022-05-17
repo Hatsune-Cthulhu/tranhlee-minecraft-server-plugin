@@ -3,8 +3,6 @@ package com.roll6.tranhlee
 import com.roll6.tranhlee.auth.discord.Authentication
 import com.roll6.tranhlee.commands.Auth
 import com.roll6.tranhlee.commands.DadJoke
-import com.roll6.tranhlee.entities.performance.Log
-import com.roll6.tranhlee.entities.performance.LogRepository
 import com.roll6.tranhlee.entities.player.PlayerRepository
 import com.roll6.tranhlee.listeners.ChatListener
 import com.roll6.tranhlee.listeners.PlayerJoinListener
@@ -60,32 +58,6 @@ class Main: JavaPlugin() {
 
             this.getCommand("dadjoke")?.setExecutor(DadJoke())
             this.getCommand("auth")?.setExecutor(Auth(repositoryManager.getRepository(PlayerRepository::class.java)))
-
-            val seconds: Int = 1800
-            this.server.scheduler.scheduleSyncRepeatingTask(
-                this, object : Runnable {
-                    var lastRun: Long? = null
-
-                    override fun run() {
-                        ResourceManager.getResource<Authentication>(Authentication::class).endDiscordAuthentication()
-
-                        if (null === this.lastRun) {
-                            this.lastRun = System.currentTimeMillis()
-                            return
-                        }
-
-                        val timeDiff = System.currentTimeMillis() - this.lastRun!!
-                        val log: Log = Log(
-                            20 * ((seconds * 20) / timeDiff),
-                            this@Main.server.onlinePlayers.map { it.displayName }
-                        )
-                        (repositoryManager.getRepository(LogRepository::class.java)).persist(log)
-                    }
-
-                },
-                0,
-                (seconds.toLong()) * 20
-            )
         } catch (exception: ServiceException) {
             return
         }
