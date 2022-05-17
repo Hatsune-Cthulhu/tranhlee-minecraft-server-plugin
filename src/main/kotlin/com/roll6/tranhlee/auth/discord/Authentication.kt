@@ -10,7 +10,6 @@ import com.roll6.tranhlee.handlers.ChatHandler
 import com.roll6.tranhlee.manager.RepositoryManager
 import com.roll6.tranhlee.manager.ResourceManager
 import org.bukkit.ChatColor
-import org.bukkit.entity.Player as BukkitPlayer
 
 class Authentication {
     private val discordBot: DiscordBot = DiscordBot(
@@ -22,6 +21,16 @@ class Authentication {
     )
 
     private val discordAuthRequests: MutableMap<Long, DiscordAuthentication> = mutableMapOf()
+
+    companion object {
+        fun isDiscordAccountLinked(player: Player): Boolean {
+            return null != player.discordId
+        }
+
+        fun isTwitchAccountLinked(player: Player): Boolean {
+            return null != player.twitchAccount
+        }
+    }
 
     fun beginDiscordAuthentication(): Boolean {
         if (this.discordBot.isRunning()) {
@@ -47,42 +56,32 @@ class Authentication {
         }
     }
 
-    fun linkDiscordAccount(bukkitPlayer: BukkitPlayer, key: String): Player {
+    fun linkDiscordAccount(player: Player, key: String): Boolean {
+        var message = "An error occurred while linking your discord account"
         return try {
             val repositoryManager: RepositoryManager = ResourceManager.getResource(RepositoryManager::class)
-            val player = repositoryManager.getRepository(PlayerRepository::class.java).findByBukkitPlayer(bukkitPlayer)
             val authentication = this.discordAuthRequests.values.firstOrNull { auth -> auth.key == key }!!
 
             player.discordId = authentication.discordId
             player.discordRoles = this.discordBot.getRoles(authentication.discordId).toMutableList()
 
             repositoryManager.getRepository(PlayerRepository::class.java).persist(player)
-            bukkitPlayer.sendMessage(
-                ChatHandler.formatWhisper(
-                    "${ChatColor.RED}Auth",
-                    "Discord account successfully linked"
-                )
-            )
+            message = "Discord account successfully linked"
 
-            player
+            false
         } catch (exception: NullPointerException) {
-            bukkitPlayer.sendMessage(
-                ChatHandler.formatWhisper(
-                    "${ChatColor.RED}Auth",
-                    "Please double check you pasted your authentication key correctly"
-                )
-            )
+            message = "Please double check you pasted your authentication key correctly"
 
-            throw RuntimeException(exception)
+            false
         } catch (exception: Exception) {
-            bukkitPlayer.sendMessage(
+            throw RuntimeException(exception)
+        } finally {
+            player.bukkitPlayer.sendMessage(
                 ChatHandler.formatWhisper(
                     "${ChatColor.RED}Auth",
-                    "An error occurred while linking your discord account"
+                    message
                 )
             )
-
-            throw RuntimeException(exception)
         }
     }
 
