@@ -10,6 +10,4 @@ abstract class EntityAbstract (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val ID: Int?,
-) {
-
-}
+)

@@ -6,9 +6,6 @@ import com.roll6.tranhlee.entities.converters.ListStringConverter
 import org.bukkit.ChatColor
 import javax.persistence.Convert
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
 
 @Entity
 class DiscordRole (

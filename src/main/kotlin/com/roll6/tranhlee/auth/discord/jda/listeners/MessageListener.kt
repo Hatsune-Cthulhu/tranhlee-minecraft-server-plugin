@@ -1,11 +1,9 @@
 package com.roll6.tranhlee.auth.discord.jda.listeners
 
 import com.roll6.tranhlee.auth.discord.Authentication
-import com.roll6.tranhlee.auth.discord.jda.DiscordBot
 import net.dv8tion.jda.api.entities.PrivateChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-
 
 class MessageListener(
     private val authentication: Authentication,
@@ -30,5 +28,4 @@ class MessageListener(
             }
         }
     }
-
 }

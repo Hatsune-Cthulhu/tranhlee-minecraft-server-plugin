@@ -6,7 +6,7 @@ import com.roll6.tranhlee.manager.ResourceManager
 import org.bukkit.ChatColor
 
 object ChatHandler {
-    private val format: String = "%sender% %connector% %message%"
+    private const val format: String = "%sender% %connector% %message%"
 
     fun sendMessage(sender: String, message: String) {
         ResourceManager.getResource<Main>(Main::class).server.broadcastMessage(

@@ -1,8 +1,6 @@
 package com.roll6.tranhlee.commands
 
-import com.roll6.tranhlee.Main
 import com.roll6.tranhlee.handlers.ChatHandler
-import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -12,7 +10,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDateTime
 
-class DadJoke() : CommandExecutor {
+class DadJoke : CommandExecutor {
     private val url = URL("https://icanhazdadjoke.com/")
     private var dateTime: LocalDateTime = LocalDateTime.now()
 
@@ -23,6 +21,7 @@ class DadJoke() : CommandExecutor {
                 val httpURLConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
                 httpURLConnection.setRequestProperty("Accept", "text/plain")
                 httpURLConnection.connect()
+
                 val input = BufferedReader(InputStreamReader(httpURLConnection.inputStream))
 
                 ChatHandler.sendMessage(
@@ -67,6 +66,5 @@ class DadJoke() : CommandExecutor {
         }
 
         return true
-
     }
 }

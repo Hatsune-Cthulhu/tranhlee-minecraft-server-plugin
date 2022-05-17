@@ -2,7 +2,7 @@ package com.roll6.tranhlee.entities
 
 import javax.persistence.EntityManager
 
-abstract class RepositoryAbstract <E: Any>(
+abstract class RepositoryAbstract <E: EntityAbstract>(
     var entityManager: EntityManager
 ) {
     inline fun <reified E> findByID(id: Int): E {
@@ -15,6 +15,7 @@ abstract class RepositoryAbstract <E: Any>(
 
     /**
      * @throws Exception
+     * @todo Clarify and improve error handling
      */
     inline fun <reified E> persist(entity: E): E {
         this.entityManager.transaction.begin()

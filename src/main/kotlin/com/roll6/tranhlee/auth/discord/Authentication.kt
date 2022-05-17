@@ -10,10 +10,9 @@ import com.roll6.tranhlee.handlers.ChatHandler
 import com.roll6.tranhlee.manager.RepositoryManager
 import com.roll6.tranhlee.manager.ResourceManager
 import org.bukkit.ChatColor
-import javax.persistence.PersistenceException
 import org.bukkit.entity.Player as BukkitPlayer
 
-class Authentication () {
+class Authentication {
     private val discordBot: DiscordBot = DiscordBot(
         this,
         ResourceManager.getResource<RepositoryManager>(RepositoryManager::class)
@@ -49,14 +48,12 @@ class Authentication () {
     }
 
     fun linkDiscordAccount(bukkitPlayer: BukkitPlayer, key: String): Player {
-        val repositoryManager: RepositoryManager = ResourceManager.getResource(RepositoryManager::class)
-        val player = repositoryManager.getRepository(PlayerRepository::class.java)
-            .findByBukkitPlayer(bukkitPlayer)!!
-
         return try {
+            val repositoryManager: RepositoryManager = ResourceManager.getResource(RepositoryManager::class)
+            val player = repositoryManager.getRepository(PlayerRepository::class.java).findByBukkitPlayer(bukkitPlayer)
             val authentication = this.discordAuthRequests.values.firstOrNull { auth -> auth.key == key }!!
 
-            player.discordId    = authentication.discordId
+            player.discordId = authentication.discordId
             player.discordRoles = this.discordBot.getRoles(authentication.discordId).toMutableList()
 
             repositoryManager.getRepository(PlayerRepository::class.java).persist(player)
@@ -76,8 +73,8 @@ class Authentication () {
                 )
             )
 
-            throw Exception()
-        } catch (exception: PersistenceException) {
+            throw RuntimeException(exception)
+        } catch (exception: Exception) {
             bukkitPlayer.sendMessage(
                 ChatHandler.formatWhisper(
                     "${ChatColor.RED}Auth",
@@ -85,7 +82,7 @@ class Authentication () {
                 )
             )
 
-            throw Exception()
+            throw RuntimeException(exception)
         }
     }
 
