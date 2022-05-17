@@ -8,6 +8,22 @@ class RepositoryManager (
 ) {
     private val repositories: MutableMap<String, RepositoryAbstract<*>> = mutableMapOf()
 
+    companion object {
+        fun formatDatabaseCredentials(
+            url: String,
+            port: Int,
+            schema: String,
+            username: String,
+            password: String,
+        ): Map<String, String> {
+            return mapOf(
+                Pair("javax.persistence.jdbc.url", "jdbc:mysql://${url}:${port}/${schema}"),
+                Pair("javax.persistence.jdbc.user", username),
+                Pair("javax.persistence.jdbc.password", password.trim()),
+            )
+        }
+    }
+
     fun <R: RepositoryAbstract<*>> getRepository(repositoryName: Class<R>): R
     {
         if (repositoryName.name in this.repositories.keys) {
