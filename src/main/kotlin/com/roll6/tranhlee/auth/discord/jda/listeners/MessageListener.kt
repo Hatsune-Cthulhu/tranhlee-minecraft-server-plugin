@@ -7,7 +7,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 class MessageListener(
     private val authentication: Authentication,
-    private val serverId: Long
+    private val serverId: Long,
+    private val channelName: String?,
+    private val commandName: String,
 ) : ListenerAdapter() {
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -15,15 +17,18 @@ class MessageListener(
             return
         }
 
-        if (event.message.contentRaw.trim() == "!auth") {
+        if (null !== this.channelName && this.channelName !== event.channel.name) {
+            return
+        }
+
+        if (event.message.contentRaw.trim() == "!${commandName}") {
             println(event.message.contentRaw)
-            event.channel.sendMessage("test").queue()
 
             val discordAuthentication = this.authentication.addDiscordAuthentication(event.message.author.idLong)
             event.message.author.openPrivateChannel().queue { channel: PrivateChannel ->
                 channel.sendMessage(
                     "Paste the following into the tranhlee minecraft server: \n" +
-                        "/auth link discord ${discordAuthentication.key}"
+                        "/${commandName} discord link ${discordAuthentication.key}"
                 ).queue()
             }
         }

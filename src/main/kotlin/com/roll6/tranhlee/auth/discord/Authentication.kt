@@ -18,6 +18,8 @@ class Authentication {
             .getRepository(DiscordRoleRepository::class.java),
         ResourceManager.getResource<Main>(Main::class).config.getLong("discord.serverId"),
         ResourceManager.getResource<Main>(Main::class).config.getString("discord.botToken")!!,
+        ResourceManager.getResource<Main>(Main::class).config.getString("discord.channelName"),
+        ResourceManager.getResource<Main>(Main::class).config.getString("auth.commandName") ?: "auth",
     )
 
     private val discordAuthRequests: MutableMap<Long, DiscordAuthentication> = mutableMapOf()
@@ -40,6 +42,10 @@ class Authentication {
         return this.discordBot.start()
     }
 
+    fun getDiscordAuthRequests(): Map<Long, DiscordAuthentication> {
+        return this.discordAuthRequests
+    }
+
     fun endDiscordAuthentication(): Boolean {
         if (!this.discordBot.isRunning()) {
             return true
@@ -52,12 +58,14 @@ class Authentication {
         return try {
             this.discordAuthRequests[discordId]!!
         } catch (exception: NullPointerException) {
-            this.discordAuthRequests.put(discordId, DiscordAuthentication(discordId))!!
+            val discordAuthentication = DiscordAuthentication(discordId)
+            this.discordAuthRequests[discordId] = discordAuthentication
+
+            discordAuthentication
         }
     }
 
     fun linkDiscordAccount(player: Player, key: String): Boolean {
-        var message = "An error occurred while linking your discord account"
         return try {
             val repositoryManager: RepositoryManager = ResourceManager.getResource(RepositoryManager::class)
             val authentication = this.discordAuthRequests.values.firstOrNull { auth -> auth.key == key }!!
@@ -66,23 +74,37 @@ class Authentication {
             player.discordRoles = this.discordBot.getRoles(authentication.discordId).toMutableList()
 
             repositoryManager.getRepository(PlayerRepository::class.java).persist(player)
-            message = "Discord account successfully linked"
 
-            false
-        } catch (exception: NullPointerException) {
-            message = "Please double check you pasted your authentication key correctly"
-
-            false
-        } catch (exception: Exception) {
-            throw RuntimeException(exception)
-        } finally {
             player.bukkitPlayer.sendMessage(
                 ChatHandler.formatWhisper(
                     "${ChatColor.RED}Auth",
-                    message
+                    "Discord account successfully linked"
                 )
             )
+            false
+        } catch (exception: NullPointerException) {
+            player.bukkitPlayer.sendMessage(
+                ChatHandler.formatWhisper(
+                    "${ChatColor.RED}Auth",
+                    "Please double check you pasted your authentication key correctly"
+                )
+            )
+            false
+        } catch (exception: Exception) {
+            player.bukkitPlayer.sendMessage(
+                ChatHandler.formatWhisper(
+                    "${ChatColor.RED}Auth",
+                    "An error occurred while linking your discord account"
+                )
+            )
+            throw RuntimeException(exception)
         }
+    }
+
+    fun importDiscordRoles(): Boolean {
+        this.beginDiscordAuthentication()
+
+        return this.discordBot.getRoles().isNotEmpty()
     }
 
     fun beginTwitchAuthentication() {

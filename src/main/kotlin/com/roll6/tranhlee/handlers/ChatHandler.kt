@@ -30,7 +30,7 @@ object ChatHandler {
 
     fun formatMessage(sender: Player, message: String): String {
         return format
-            .replace("%sender%", "${sender.getChatColour()}${sender.bukkitPlayer!!.displayName}")
+            .replace("%sender%", "${sender.getChatColour()}${sender.bukkitPlayer.displayName}")
             .replace("%connector%", "${ChatColor.WHITE}>>")
             .replace("%message%", message)
     }
@@ -50,12 +50,12 @@ object ChatHandler {
     }
 
     fun rainbow(string: String): String {
-        return string.onEach { char ->
+        return string.replace(".".toRegex()) { result ->
             val colour: ChatColor = ChatColor.values().filter { chatColour ->
                 chatColour.isColor
             }.shuffled().first()
 
-            return "${colour}${char}"
+            "${colour}${result.value}"
         }
     }
 }

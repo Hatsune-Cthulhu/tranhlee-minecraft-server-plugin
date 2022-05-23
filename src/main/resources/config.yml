@@ -7,3 +7,5 @@ database:
 discord:
   serverId: xxx
   botToken: xxx
+auth:
+  commandName: auth

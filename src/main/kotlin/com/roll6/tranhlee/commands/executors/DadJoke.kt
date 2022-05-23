@@ -1,4 +1,4 @@
-package com.roll6.tranhlee.commands
+package com.roll6.tranhlee.commands.executors
 
 import com.roll6.tranhlee.handlers.ChatHandler
 import org.bukkit.command.Command

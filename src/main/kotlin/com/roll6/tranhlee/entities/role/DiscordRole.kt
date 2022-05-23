@@ -18,5 +18,5 @@ class DiscordRole (
 
     @Convert(converter = ListStringConverter::class)
     val permissions: Collection<String>,
-    ID: Int
+    ID: Int? = null
 ) : EntityAbstract(ID)

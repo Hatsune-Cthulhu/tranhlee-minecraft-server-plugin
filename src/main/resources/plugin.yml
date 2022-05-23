@@ -1,11 +1,9 @@
 name: TranhleeMinecraft
 main: com.roll6.tranhlee.Main
 author: HatsuneCthulhu
-version: 0.0.35-ALPHA
+version: 0.0.36-ALPHA
 
 commands:
-  auth:
-    usage: Please use /<command> help for instructions
   dadjoke:
     description: Get an excellent joke for BBQs
     usage: /<command>
