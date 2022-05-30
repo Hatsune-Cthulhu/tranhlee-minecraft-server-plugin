@@ -74,8 +74,16 @@ class Main : JavaPlugin() {
             val minutes = 30L
             this.server.scheduler.scheduleSyncRepeatingTask(
                 this,
-                { ResourceManager.getResource<Authentication>(Authentication::class).endDiscordAuthentication() },
-                0,
+                {
+                    val playerRepository = repositoryManager.getRepository(PlayerRepository::class.java)
+                    this@Main.server.onlinePlayers.map { player ->
+                        playerRepository.findByBukkitPlayer(player)
+                    }.forEach { player ->
+                        playerRepository.persist(player.addPoints(50))
+                    }
+                    ResourceManager.getResource<Authentication>(Authentication::class).endDiscordAuthentication()
+                },
+                (60 * minutes) * 20,
                 (60 * minutes) * 20
             )
         } catch (exception: ServiceException) {

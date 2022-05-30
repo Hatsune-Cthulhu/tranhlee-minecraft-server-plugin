@@ -8,6 +8,7 @@ import org.bukkit.ChatColor
 import org.bukkit.permissions.PermissionAttachment
 import javax.persistence.*
 import kotlin.jvm.Transient
+import kotlin.math.max
 import org.bukkit.entity.Player as BukkitPlayer
 
 @Entity
@@ -25,6 +26,8 @@ class Player (
     @Column(unique = true)
     val twitchAccount: String?,
 
+    private var points: Int,
+
     ID: Int?,
 ) : EntityAbstract(ID) {
     @Transient
@@ -38,6 +41,7 @@ class Player (
         null,
         mutableListOf(),
         null,
+        0,
         null
     ) {
         this.bukkitPlayer = bukkitPlayer
@@ -58,5 +62,19 @@ class Player (
                 this@Player.permissionAttachment.setPermission(permission, true)
             }
         }
+    }
+
+    fun getPoints(): Int = this.points
+
+    fun addPoints(points: Int): Player {
+        this.points += points
+
+        return this
+    }
+
+    fun subPoints(points: Int): Player {
+        this.points = max(this.points - points, 0)
+
+        return this
     }
 }
